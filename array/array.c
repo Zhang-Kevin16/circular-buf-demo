@@ -11,7 +11,7 @@ struct array_buf *array_init(int sz)
     struct array_buf *buf = calloc(sizeof(struct array_buf) + sz);
     buf->sz = sz;
     return buf;
-}
+};
 
 void array_push(struct array_buf *buf, char *input, int sz)
 {
