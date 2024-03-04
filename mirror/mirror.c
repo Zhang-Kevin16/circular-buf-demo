@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #define PAGE_SIZE 4096
 #define ROUND_UP(N, S) ((((N) + (S) - 1) / (S)) * (S))
@@ -24,11 +25,9 @@ struct mirror_buf *mirror_init(int sz)
     
     sz = ROUND_UP(sz, 4096);
     ftruncate(fd, sz);
-    page1 = mmap(NULL, sz * 2, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    page2 = page1 + sz;
-    munmap(page1, sz * 2);
-    page1 = mmap(page1, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
-    page2 = mmap(page2, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
+    page1 = mmap(page1, sz * 2, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    page2 = mmap(page1 + sz, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
+    close(fd);
     printf("%p %p\n", page1, page2);
     buf->sz = sz;
     buf->cur = 0;
